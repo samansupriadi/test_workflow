@@ -4,6 +4,7 @@ on:
     branches:
       - staging
       - development
+    types: ["closed"]
   workflow_dispatch:
     inputs:
       logLevel:
@@ -15,6 +16,7 @@ on:
         - RelyOn Production
 jobs:
   set_target_env:
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
     name: Define Environment
     runs-on: ubuntu-latest
     outputs:
