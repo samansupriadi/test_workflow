@@ -16,11 +16,9 @@ on:
 
 jobs:
   set_target_env:
-    if: github.event.pull_request.merged
+    if: github.event.pull_request.merged == true    
     name: Define Environment
-    runs-on:
-      group: Development
-      labels: [self-hosted,Linux,X64,Development]
+    runs-on: ubuntu-latest
     outputs:
       env_app: ${{ steps.set_env.outputs.env_value }}
     steps:
