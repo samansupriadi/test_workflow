@@ -1,5 +1,9 @@
 name: Test Triger Manually
 on:
+  push:
+    branches:
+    - development
+    - main
   pull_request:
     branches:
       - development
@@ -23,8 +27,8 @@ jobs:
     steps:
       - id: set_env
         run: |
-          env_value=contains(github.ref_name, 'development') && 'development' || contains(github.ref_name, 'main') && 'production'
-
+          env_value=${{ github.ref_name }}
+          echo ${{ github.ref_name }}
           echo "env_value=${env_value}" >> ${GITHUB_OUTPUT}
 
   log-the-inputs:
