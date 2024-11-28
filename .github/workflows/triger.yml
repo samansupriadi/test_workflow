@@ -22,17 +22,19 @@ jobs:
     steps:
       - id: set_env
         run: |
-          getBranchName=${{ github.base_ref }} 
+          getBranchName=${{ github.base_ref }}
           env_value=0
-          if [ "$getBranchName" =~ 'production' ]; then
+
+          if [[ "$getBranchName" =~ 'production' ]]; then
               env_value='production'
-          elif [ "$getBranchName" =~ 'staging' ]; then
+          elif [[ "$getBranchName" =~ 'staging' ]]; then
               env_value='staging'
-          elif [ "$getBranchName" =~ 'development' ]; then
+          elif [[ "$getBranchName" =~ 'development' ]]; then
               env_value='development'
           fi
 
           echo "env_value=$env_value" >> "$GITHUB_OUTPUT"
+
 
 
   log-the-inputs:
