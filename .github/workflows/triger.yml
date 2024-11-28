@@ -1,34 +1,47 @@
 name: Test Triger Manually
 on:
+  pull_request:
+    branches:
+      - development
+      - main
   workflow_dispatch:
     inputs:
       logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
+        description: 'Deploy To'
+        default: 'ALL'
         type: choice
         options:
-        - info
-        - warning
-        - debug
-      tags:
-        description: 'Test scenario tags'
-        required: false
-        type: boolean
-      environment:
-        description: 'Environment to run tests against'
-        type: environment
-        required: true
+        - ALL
+        - RelyOn Production
 
 jobs:
+  set_target_env:
+    if: github.event.pull_request.merged
+    name: Define Environment
+    runs-on:
+      group: Development
+      labels: [self-hosted,Linux,X64,Development]
+    outputs:
+      env_app: ${{ steps.set_env.outputs.env_value }}
+    steps:
+      - id: set_env
+        run: |
+          env_value=contains(github.ref_name, 'development') && 'development' || contains(github.ref_name, 'main') && 'production'
+
+          echo "env_value=${env_value}" >> ${GITHUB_OUTPUT}
+
   log-the-inputs:
+    needs:  set_target_env
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "Log level: $LEVEL"
-          echo "Tags: $TAGS"
-          echo "Environment: $ENVIRONMENT"
-        env:
-          LEVEL: ${{ inputs.logLevel }}
-          TAGS: ${{ inputs.tags }}
-          ENVIRONMENT: ${{ inputs.environment }}
+          echo ${{ needs.set_target_env.outputs.env_app }}
+
+        #   echo "Log level: $LEVEL"
+        #   echo "Tags: $TAGS"
+        #   echo "Environment: $ENVIRONMENT"
+        #   printenv
+        # env:
+        #   LEVEL: ${{ inputs.logLevel }}
+        #   TAGS: ${{ inputs.tags }}
+        #   ENVIRONMENT: ${{ inputs.environment }}
