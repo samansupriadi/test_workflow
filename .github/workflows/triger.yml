@@ -1,9 +1,5 @@
 name: Test Triger Manually
 on:
-  push:
-    branches:
-    - development
-    - main
   pull_request:
     branches:
       - development
@@ -17,9 +13,9 @@ on:
         options:
         - ALL
         - RelyOn Production
-
 jobs:
   set_target_env:
+    if: github.event.pull_request.merged == true
     name: Define Environment
     runs-on: ubuntu-latest
     outputs:
@@ -27,8 +23,8 @@ jobs:
     steps:
       - id: set_env
         run: |
-          env_value=${{ github.ref_name }}
-          echo ${{ github.ref_name }}
+          env_value=${{ github.base_ref }}
+          echo ${env_value}
           echo "env_value=${env_value}" >> ${GITHUB_OUTPUT}
 
   log-the-inputs:
