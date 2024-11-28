@@ -2,7 +2,7 @@ name: Test Triger Manually
 on:
   pull_request:
     branches:
-      - development
+      - staging
       - main
   workflow_dispatch:
     inputs:
@@ -22,6 +22,7 @@ jobs:
     steps:
       - id: set_env
         run: |
+          echo ${{ github.event_name }}
           getBranchName=${{ github.base_ref }}
           env_value=0
 
