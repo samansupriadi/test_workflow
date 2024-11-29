@@ -27,11 +27,11 @@ jobs:
           getBranchName=${{ github.base_ref }}
           env_value=0
 
-          if [[ "$getBranchName" =~ 'main' ]]; then
+          if [[ "$getBranchName" == 'main' ]]; then
               env_value='production'
-          elif [[ "$getBranchName" =~ 'staging' ]]; then
+          elif [[ "$getBranchName" == 'staging' ]]; then
               env_value='staging'
-          elif [[ "$getBranchName" =~ 'development' ]]; then
+          elif [[ "$getBranchName" == 'development' ]]; then
               env_value='development'
           fi
 
