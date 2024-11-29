@@ -24,8 +24,8 @@ jobs:
     steps:
       - id: set_env
         run: |
-          echo "${{ github.base_ref }} ${{ github.ref_name }}"
-          getBranchName=${{ github.base_ref }}
+          type="${{ github.ref_type }}" 
+          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name}}            
           env_value=0
 
           if [[ "$getBranchName" == 'main' ]]; then
