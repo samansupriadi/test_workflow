@@ -7,7 +7,7 @@ on:
     types: ["closed"]
   workflow_dispatch:
     inputs:
-      logLevel:
+      DeployTo:
         description: 'Deploy To'
         default: 'ALL'
         type: choice
@@ -25,7 +25,7 @@ jobs:
       - id: set_env
         run: |
           type="${{ github.ref_type }}" 
-          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name}}            
+          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || inputs.DeployTo == 'ALL' && github.ref_name ||  github.ref_name}}            
           env_value=0
 
           if [[ "$getBranchName" == 'main' ]]; then
@@ -40,6 +40,7 @@ jobs:
 
   env-list:
     needs: set_target_env
+    if: needs.set_target_env.outputs.env_app != '0'
     runs-on: ubuntu-latest
     steps:
       - run: |
@@ -64,6 +65,6 @@ jobs:
         #   echo "Environment: $ENVIRONMENT"
         #   printenv
         # env:
-        #   LEVEL: ${{ inputs.logLevel }}
+        #   LEVEL: ${{ inputs.DeployTo }}
         #   TAGS: ${{ inputs.tags }}
         #   ENVIRONMENT: ${{ inputs.environment }}
