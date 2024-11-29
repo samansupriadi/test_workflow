@@ -24,6 +24,7 @@ jobs:
     steps:
       - id: set_env
         run: |
+          echo "${{ github.base_ref }} ${{ github.ref_name }}"
           getBranchName=${{ github.base_ref }}
           env_value=0
 
