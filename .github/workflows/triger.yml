@@ -66,13 +66,13 @@ jobs:
           echo "ListDeploy=$matrix_output" >> $GITHUB_OUTPUT
 
   triger-deploy:
-    name: Triger to deploy
+    name: Triger to deploy ${{ matrix.project }}
     needs:  env-list
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.env-list.outputs.lists) }}
     steps:
       - run: |
-          - run: echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
+          echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
 
  
