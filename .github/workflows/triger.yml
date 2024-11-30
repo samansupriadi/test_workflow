@@ -60,8 +60,11 @@ jobs:
           '.environments[] | select(.name | contains($target_env)) | {project: .name, config: "Debug"}')
 
           matrix_output=$(echo "$envs" | jq -s -c '{include: [.[]]}')
-          echo "ListDeploy=$matrix_output" >> $GITHUB_OUTPUT
+
+          echo $matrix_output
           
+          echo "ListDeploy=$matrix_output" >> $GITHUB_OUTPUT
+
   triger-deploy:
     name: Triger to deploy
     needs:  env-list
@@ -71,6 +74,6 @@ jobs:
         os: ${{ fromJson(needs.env-list.outputs.lists) }}
     steps:
       - run: |
-          echo "Deploying to}"
+          echo "Deploying to"
 
  
