@@ -41,27 +41,30 @@ jobs:
           echo "env_value=$env_value" >> "$GITHUB_OUTPUT"
 
   env-list:
-    name: Triger to ${{ needs.set_target_env.outputs.env_app }}
+    name: List deploy to ${{ needs.set_target_env.outputs.env_app }}
     needs: set_target_env
     if: needs.set_target_env.outputs.env_app != '0'
     runs-on: ubuntu-latest
+    outputs:
+      lists: ${{ steps.list_deploy.outputs.ListDeploy }}
     steps:
-      - run: |
+      - id: list_deploy
+        run: |
           envs=$(curl -L \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{secrets.TOKEN}}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ vars.REPO }}/environments | jq -r '.environments[].name | select(test("${{ needs.set_target_env.outputs.env_app }}"))')
           
-          echo "${envs[@]}"
+          echo "ListDeploy=$envs" >> "$GITHUB_OUTPUT"
 
 
-  log-the-inputs:
-    needs:  set_target_env
+  triger-deploy:
+    needs:  env-list
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo ${{ needs.set_target_env.outputs.env_app }}
+          echo ${{ needs.env-list.outputs.lists }}
 
         #   echo "Log level: $LEVEL"
         #   echo "Tags: $TAGS"
