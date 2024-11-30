@@ -58,12 +58,11 @@ jobs:
             https://api.github.com/repos/${{vars.REPO}}/environments | jq -r '.environments[] | select(.name | contains("${{needs.set_target_env.outputs.env_app}}")) | {env: .name}')
             
             matrix_output=$(echo "$envs" | jq -s '{include: [.[] | {env: .env}]}')  
-            echo $matrix_output      
-            #echo "ListDeploy=$envs" >> "$GITHUB_OUTPUT"
+            echo "ListDeploy=$matrix_output" >> $GITHUB_OUTPUT      
 
 
   triger-deploy:
-    name: Triger to deploy ${{ matrix.os.env }}
+    name: Triger to deploy ${{ matrix.os }}
     needs:  env-list
     runs-on: ubuntu-latest
     strategy:
