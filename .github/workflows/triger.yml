@@ -63,12 +63,12 @@ jobs:
 
 
   triger-deploy:
-    name: Triger to deploy ${{matrix.os}} ${{needs.env-list.outputs.lists}}
+    name: Triger to deploy ${{matrix.os}}
     needs:  env-list
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [${{needs.env-list.outputs.lists}}]
+        os: ${{needs.env-list.outputs.lists}}
     steps:
       - run: |
           echo "ok"
