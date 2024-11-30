@@ -59,11 +59,12 @@ jobs:
             paste -sd, -
             )
 
-            echo "$envs"
+          echo "ListDeploy=$envs" >> "$GITHUB_OUTPUT"
 
 
 
   triger-deploy:
+    name: Triger to deploy ${{ needs.env-list.outputs.lists }}
     needs:  env-list
     runs-on: ubuntu-latest
     steps:
