@@ -70,10 +70,9 @@ jobs:
     needs:  env-list
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        os: ${{ fromJson(needs.env-list.outputs.lists) }}
+      matrix: ${{ fromJson(needs.env-list.outputs.lists) }}
     steps:
       - run: |
-          echo "Deploying to"
+          - run: echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
 
  
