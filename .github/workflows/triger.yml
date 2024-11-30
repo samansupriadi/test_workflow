@@ -59,12 +59,12 @@ jobs:
             
             #echo "ListDeploy=$envs" >> $GITHUB_OUTPUT      
 
-            matrix_output=$(echo "$envs" | jq -s '{include: [.[] | {env: .env}]}')  
+            #matrix_output=$(echo "$envs" | jq -s '{include: [.[] | {env: .env}]}')  
 
-            echo $matrix_output
+            #echo $matrix_output
             # echo "ListDeploy=$matrix_output" >> $GITHUB_OUTPUT  
             
-            run: echo "ListDeploy={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}" >> $GITHUB_OUTPUT
+            echo "ListDeploy={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}" >> $GITHUB_OUTPUT
 
 
   triger-deploy:
