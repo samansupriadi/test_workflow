@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: ["${{ needs.env-list.outputs.lists }}"]
+        os: [ubuntu-22.04, ubuntu-20.04]
     steps:
       - run: |
           echo "ok"
