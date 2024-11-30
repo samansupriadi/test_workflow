@@ -56,9 +56,10 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ vars.REPO }}/environments | \
             jq -r '.environments[].name | select(test("${{ needs.set_target_env.outputs.env_app }}"))' | \
-            tr '\n' ', ' | sed 's/, $//')
+            paste -sd', ' -)
 
-          echo "$envs"
+            echo "$envs"
+
 
 
   triger-deploy:
