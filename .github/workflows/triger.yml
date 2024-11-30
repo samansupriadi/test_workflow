@@ -67,12 +67,14 @@ jobs:
 
   triger-deploy:
     name: Triger to deploy ${{ matrix.project }}
+    environment:
+      name: ${{ matrix.project }}
     needs:  env-list
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.env-list.outputs.lists) }}
     steps:
       - run: |
-          echo "Matrix - Project ${{ matrix.project }}"
+          echo "Matrix - Project ${{ matrix.project }} ${{ vars.TEST }}"
 
  
