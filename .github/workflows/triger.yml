@@ -68,9 +68,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: ${{ needs.env-list.outputs.lists }}
+        os: ${{ fromJson(needs.env-list.outputs.lists) }}
     steps:
       - run: |
-          echo "ok"
+          echo "Deploying to ${{ matrix.os }}"
 
  
