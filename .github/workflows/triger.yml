@@ -14,6 +14,8 @@ on:
         options:
         - ALL
         - production-relyon
+        - production-uam
+
 jobs:
   set_target_env:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
@@ -22,9 +24,12 @@ jobs:
     outputs:
       env_app: ${{ steps.set_env.outputs.env_value }}
     steps:
+      - id: set_auth
+        run: |
+          echo "${{ github.actor }} ${{ github.triggering_actor }}"
       - id: set_env
         run: |
-          ## valiadsi input harus dari main untuk workflow dispatch belum
+          ## valiadsi input harus dari main untuk workflow dispatch belum atau dari tag
           #belum di coba juga kalo misalkan yang di deploy hanya ke salah satu saja yang ingin di deploy bukan all
           type="${{ github.ref_type }}" 
           #belum di coba juga nanti kalo tag branch name nya jadi gimana
@@ -76,5 +81,7 @@ jobs:
     steps:
       - run: |
           echo "Matrix - Project ${{ matrix.project }} ${{ vars.TEST }}"
+
+          
 
  
