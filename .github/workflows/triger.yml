@@ -27,7 +27,7 @@ jobs:
     - id: check_auth
       run: |
         auth=${{ contains(secrets.AUTH, github.triggering_actor) }}
-        echo auth=$auth >> "$GITHUB_OUTPUT"
+        echo "auth="$auth >> "$GITHUB_OUTPUT"
 
   set_target_env:
     needs:  check_auth
