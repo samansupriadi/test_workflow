@@ -29,9 +29,23 @@ jobs:
             echo "::error::Users has no privileged to run the workflows"
             exit 1
         fi
-
+  
+  validate_triger:
+    needs: check_auth
+    if: github.event_name == 'workflow_dispatch'
+    name: Validate triger workflows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate triger workflows
+        run: |
+          validate=${{ github.ref_name  == 'main' && true || startsWith(github.event.ref, 'refs/tags') && true || false }}
+          if [ "$validate" != "true" ]; then
+              echo "::error::Worflow only can triger manually from tag and main branch"
+              exit 1
+          fi
+          
   set_target_env:
-    needs:  check_auth
+    needs:  [check_auth]
     if: needs.check_auth.result  == 'success'
     name: Define Environment
     runs-on: ubuntu-latest
@@ -42,11 +56,15 @@ jobs:
         run: |
           ## valiadsi input harus dari main untuk workflow dispatch belum atau dari tag
           #belum di coba juga kalo misalkan yang di deploy hanya ke salah satu saja yang ingin di deploy bukan all
-          type="${{ github.ref_type }}" 
           #belum di coba juga nanti kalo tag branch name nya jadi gimana
-          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || inputs.DeployTo == 'ALL' && github.ref_name ||  github.ref_name}}            
-          env_value=0
 
+          
+          
+          
+          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || github.event_name == 'workflow_dispatch' &&  github.ref_name}}   
+
+
+          env_value=0
           if [[ "$getBranchName" == 'main' ]]; then
               env_value='production'
           elif [[ "$getBranchName" == 'staging' ]]; then
