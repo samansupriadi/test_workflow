@@ -27,10 +27,11 @@ jobs:
     - id: check_auth
       run: |
         auth=${{ contains(secrets.AUTH, github.triggering_actor) }}
-        if !$auth ; then
+        if [ "$auth" != "true" ]; then
             echo "::error::Users has no privileged to run the workflows"
             exit 1
         fi
+
 
   set_target_env:
     needs:  check_auth
