@@ -24,8 +24,8 @@ jobs:
     steps:
       - name: check user
         run: |
-          auth=${{ contains( github.triggering_actor, secrets.AUTH) }}
-          echo $auth
+          auth=${{ contains(secrets.AUTH, github.triggering_actor) }}
+          echo $auth 
 
   set_target_env:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
