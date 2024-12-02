@@ -45,7 +45,7 @@ jobs:
           fi
           
   set_target_env:
-    needs:  [check_auth, validate_triger]
+    needs:  [check_auth]
     if: needs.check_auth.result  == 'success'
     name: Define Environment
     runs-on: ubuntu-latest
