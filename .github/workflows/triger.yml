@@ -14,9 +14,25 @@ on:
         options:
         - ALL
         - production-relyon
+        - production-uam
+
 jobs:
-  set_target_env:
+  check_auth:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
+    name: Check user privileges who triger the workflows
+    runs-on: ubuntu-latest
+    steps:
+    - name: check user privilege
+      run: |
+        auth=${{ contains(secrets.AUTH, github.triggering_actor) }}
+        if [ "$auth" != "true" ]; then
+            echo "::error::Users has no privileged to run the workflows"
+            exit 1
+        fi
+
+  set_target_env:
+    needs:  check_auth
+    if: needs.check_auth.result  == 'success'
     name: Define Environment
     runs-on: ubuntu-latest
     outputs:
@@ -24,8 +40,10 @@ jobs:
     steps:
       - id: set_env
         run: |
-          ## valiadsi input harus dari main untuk workflow dispatch belum
+          ## valiadsi input harus dari main untuk workflow dispatch belum atau dari tag
+          #belum di coba juga kalo misalkan yang di deploy hanya ke salah satu saja yang ingin di deploy bukan all
           type="${{ github.ref_type }}" 
+          #belum di coba juga nanti kalo tag branch name nya jadi gimana
           getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || inputs.DeployTo == 'ALL' && github.ref_name ||  github.ref_name}}            
           env_value=0
 
@@ -38,35 +56,41 @@ jobs:
           fi
 
           echo "env_value=$env_value" >> "$GITHUB_OUTPUT"
+  
+
 
   env-list:
-    name: Triger to ${{ needs.set_target_env.outputs.env_app }}
+    name: List deploy to ${{ needs.set_target_env.outputs.env_app }}
     needs: set_target_env
     if: needs.set_target_env.outputs.env_app != '0'
     runs-on: ubuntu-latest
+    outputs:
+      lists: ${{ steps.list_deploy.outputs.ListDeploy }}
     steps:
-      - run: |
+      - id: list_deploy
+        run: |
           envs=$(curl -L \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{secrets.TOKEN}}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ vars.REPO }}/environments | jq -r '.environments[].name | select(test("${{ needs.set_target_env.outputs.env_app }}"))')
-          
-          echo "$envs"
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{secrets.TOKEN}}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/${{ vars.REPO }}/environments | \
+          jq -r --arg target_env "${{ needs.set_target_env.outputs.env_app }}" \
+          '.environments[] | select(.name | contains($target_env)) | {project: .name}')
+          matrix_output=$(echo "$envs" | jq -s -c '{include: [.[]]}')
+          echo "ListDeploy=$matrix_output" >> $GITHUB_OUTPUT
 
-
-  log-the-inputs:
-    needs:  set_target_env
+  triger-deploy:
+    name: Triger to deploy ${{ matrix.project }}
+    environment:
+      name: ${{ matrix.project }}
+    needs:  env-list
     runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.env-list.outputs.lists) }}
     steps:
       - run: |
-          echo ${{ needs.set_target_env.outputs.env_app }}
+          echo "Matrix - Project ${{ matrix.project }} ${{ vars.TEST }}"
 
-        #   echo "Log level: $LEVEL"
-        #   echo "Tags: $TAGS"
-        #   echo "Environment: $ENVIRONMENT"
-        #   printenv
-        # env:
-        #   LEVEL: ${{ inputs.DeployTo }}
-        #   TAGS: ${{ inputs.tags }}
-        #   ENVIRONMENT: ${{ inputs.environment }}
+
+
+ 
