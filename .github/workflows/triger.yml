@@ -42,11 +42,21 @@ jobs:
         run: |
           ## valiadsi input harus dari main untuk workflow dispatch belum atau dari tag
           #belum di coba juga kalo misalkan yang di deploy hanya ke salah satu saja yang ingin di deploy bukan all
-          type="${{ github.ref_type }}" 
           #belum di coba juga nanti kalo tag branch name nya jadi gimana
-          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || inputs.DeployTo == 'ALL' && github.ref_name ||  github.ref_name}}            
-          env_value=0
+          getBranchName=0
+          GITHUB_EVENT_NAME=0
 
+          if [[ "${{ github.event_name  }}" == 'pull_request' ]]; then
+              getBranchName="${{ github.base_ref  }}"
+          elif [[ "${{ github.event_name  }}" == 'workflow_dispatch' && ${{ inputs.DeployTo }} == 'ALL']]; then
+              getBranchName="main"
+          elif [[ "${{ github.event_name  }}" == 'workflow_dispatch' ]]; then
+              getBranchName="${{ inputs.DeployTo }}"
+          fi
+
+          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || inputs.DeployTo == 'ALL' && github.ref_name ||  github.ref_name}}   
+
+          env_value=0
           if [[ "$getBranchName" == 'main' ]]; then
               env_value='production'
           elif [[ "$getBranchName" == 'staging' ]]; then
