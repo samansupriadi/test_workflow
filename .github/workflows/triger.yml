@@ -17,6 +17,16 @@ on:
         - production-uam
 
 jobs:
+  check_auth:
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
+    name: Check user privileges who triger the workflows
+    runs-on: ubuntu-latest
+    steps:
+      - name: check user
+        run: |
+          auth=${{ contains( github.triggering_actor, secrets.AUTH) }}
+          echo $auth
+
   set_target_env:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
     name: Define Environment
@@ -24,9 +34,6 @@ jobs:
     outputs:
       env_app: ${{ steps.set_env.outputs.env_value }}
     steps:
-      - id: set_auth
-        run: |
-          echo "${{ github.actor }} ${{ github.triggering_actor }}"
       - id: set_env
         run: |
           ## valiadsi input harus dari main untuk workflow dispatch belum atau dari tag
@@ -45,6 +52,8 @@ jobs:
           fi
 
           echo "env_value=$env_value" >> "$GITHUB_OUTPUT"
+  
+
 
   env-list:
     name: List deploy to ${{ needs.set_target_env.outputs.env_app }}
@@ -63,11 +72,7 @@ jobs:
           https://api.github.com/repos/${{ vars.REPO }}/environments | \
           jq -r --arg target_env "${{ needs.set_target_env.outputs.env_app }}" \
           '.environments[] | select(.name | contains($target_env)) | {project: .name}')
-
           matrix_output=$(echo "$envs" | jq -s -c '{include: [.[]]}')
-
-          echo $matrix_output
-          
           echo "ListDeploy=$matrix_output" >> $GITHUB_OUTPUT
 
   triger-deploy:
@@ -82,6 +87,6 @@ jobs:
       - run: |
           echo "Matrix - Project ${{ matrix.project }} ${{ vars.TEST }}"
 
-          
+
 
  
