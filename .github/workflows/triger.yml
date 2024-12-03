@@ -61,7 +61,7 @@ jobs:
           if [[ "$getBranchName" == 'main' ]]; then
               env_value='production'
           elif [[ "$getBranchName" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              env_value="${{inputs.DeployTo }}"
+              env_value=${{inputs.DeployTo }}
           elif [[ "$getBranchName" == 'staging' ]]; then
               env_value='staging'
           elif [[ "$getBranchName" == 'development' ]]; then
