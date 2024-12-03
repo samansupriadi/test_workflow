@@ -43,6 +43,7 @@ jobs:
           #belum di coba juga kalo misalkan yang di deploy hanya ke salah satu saja yang ingin di deploy bukan all
           #belum di coba juga nanti kalo tag branch name nya jadi gimana
           env_value=0
+          targetDeploy=${{  inputs.DeployTo != null && inputs.DeployTo || null }}
           type=${{ github.event_name == 'pull_request' && 'pull_request' ||  'workflow_disaptch' }}
           if [[ "$type" == 'workflow_disaptch' ]]; then
             validate=${{ github.ref_name  == 'main' && true || startsWith(github.event.ref, 'refs/tags') && true || false }}
@@ -57,10 +58,10 @@ jobs:
 
 
           
-          if [[ "$getBranchName" == 'main' ]] && [[ ${{inputs.DeployTo }} == 'ALL' ]] ; then
+          if [[ "$getBranchName" == 'main' ]] && [[ "$targetDeploy" == 'ALL' ]] ; then
               env_value='production'
-          elif [[ "$getBranchName" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "$getBranchName" == 'main' ]]  &&  [[ ${{inputs.DeployTo }} != 'ALL' ]] ; then
-              env_value=${{inputs.DeployTo }}
+          elif [[ "$getBranchName" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "$getBranchName" == 'main' ]]  &&  [[  "$targetDeploy" != 'ALL' ]] ; then
+              env_value="$targetDeploy"
           elif [[ "$getBranchName" == 'staging' ]]; then
               env_value='staging'
           elif [[ "$getBranchName" == 'development' ]]; then
