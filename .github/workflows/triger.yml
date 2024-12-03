@@ -43,6 +43,7 @@ jobs:
           #belum di coba juga kalo misalkan yang di deploy hanya ke salah satu saja yang ingin di deploy bukan all
           #belum di coba juga nanti kalo tag branch name nya jadi gimana
           env_value=0
+          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || github.event_name == 'workflow_disaptch' &&  github.ref_name}}   
           targetDeploy=${{  inputs.DeployTo != null && inputs.DeployTo || null }}
           type=${{ github.event_name == 'pull_request' && 'pull_request' ||  'workflow_disaptch' }}
           if [[ "$type" == 'workflow_disaptch' ]]; then
@@ -53,12 +54,7 @@ jobs:
             fi
           fi
 
-
-          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || github.event_name == 'workflow_disaptch' &&  github.ref_name}}   
-
-
-          
-          if [[ "$getBranchName" == 'main' ]] && [[ "$targetDeploy" == 'ALL' ]] ; then
+          if [[ "$getBranchName" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "$getBranchName" == 'main' ]] && [[ "$targetDeploy" == 'ALL' ]] ; then
               env_value='production'
           elif [[ "$getBranchName" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "$getBranchName" == 'main' ]]  &&  [[  "$targetDeploy" != 'ALL' ]] ; then
               env_value="$targetDeploy"
@@ -67,12 +63,8 @@ jobs:
           elif [[ "$getBranchName" == 'development' ]]; then
               env_value='development'
           fi
-
-
           echo "env_value=$env_value" >> "$GITHUB_OUTPUT"
   
-
-
   env-list:
     name: List deploy to ${{ needs.set_target_env.outputs.env_app }}
     needs: set_target_env
