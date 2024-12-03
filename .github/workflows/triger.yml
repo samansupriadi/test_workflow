@@ -42,11 +42,11 @@ jobs:
         run: |
           #belum di coba juga kalo misalkan yang di deploy hanya ke salah satu saja yang ingin di deploy bukan all
           #belum di coba juga nanti kalo tag branch name nya jadi gimana
-          echo " ${{ github.event_name }}  ${{ github.ref_name }}"
           env_value=0
-          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || github.event_name == 'workflow_disaptch' &&  github.ref_name || false }}   
           targetDeploy=${{  inputs.DeployTo != null && inputs.DeployTo || null }}
           type=${{ github.event_name == 'pull_request' && 'pull_request' ||  'workflow_disaptch' }}
+          getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || github.event_name == 'workflow_dispatch' &&  github.ref_name}}   
+
           if [[ "$type" == 'workflow_disaptch' ]]; then
             validate=${{ github.ref_name  == 'main' && true || startsWith(github.event.ref, 'refs/tags') && true || false }}
             if [ "$validate" != "true" ]; then
