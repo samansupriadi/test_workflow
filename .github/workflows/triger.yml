@@ -63,12 +63,6 @@ jobs:
           elif [[ "$getBranchName" == 'development' ]]; then
             env_value='development'
           fi
-
-          if [["$env_value" == 0 ]]; then
-                echo "::error::ENV Target Not exists"
-                exit 1
-          fi
-
           echo "env_value=$env_value" >> "$GITHUB_OUTPUT"
   
   env-list:
