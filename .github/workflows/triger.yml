@@ -72,6 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       lists: ${{ steps.list_deploy.outputs.ListDeploy }}
+      count: ${{  steps.list_deploy.outputs.count }}
     steps:
       - id: list_deploy
         run: |
@@ -83,9 +84,12 @@ jobs:
           jq -r --arg target_env "${{ needs.set_target_env.outputs.env_app }}" \
           '.environments[] | select(.name | contains($target_env)) | {project: .name}')
           matrix_output=$(echo "$envs" | jq -s -c '{include: [.[]]}')
-          echo "ListDeploy=$matrix_output" >> $GITHUB_OUTPUT
+          count=$(echo "$matrix_output" | jq '.include | length')
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "ListDeploy=$matrix_output" >> "$GITHUB_OUTPUT"
 
   triger-deploy:
+    if: needs.env-list.outputs.count > 0
     name: Triger to deploy ${{ matrix.project }}
     environment:
       name: ${{ matrix.project }}
@@ -95,7 +99,7 @@ jobs:
       matrix: ${{ fromJson(needs.env-list.outputs.lists) }}
     steps:
       - run: |
-          echo "Matrix - Project ${{ matrix.project }} ${{ vars.TEST }}"
+          curl -X POST -L -s --user ${{secrets.JENKINS_USERNAME}}:${{ secrets.JENKINS_TOKEN }} ${{vars.JENKINS_URL}}${{vars.JENKINS_JOB}}build
 
 
 
