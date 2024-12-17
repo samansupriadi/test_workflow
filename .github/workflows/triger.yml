@@ -75,7 +75,7 @@ jobs:
 
   deploy-production:
     needs: [set_target_env, check_auth]
-    if: needs.set_target_env.outputs.env_app != '0' && ${{ success() }} && needs.set_target_env.outputs.env_app != 'production'
+    if: needs.set_target_env.outputs.env_app != '0' && ${{ success() }} && needs.set_target_env.outputs.env_app == 'production'
     name: List deploy to ${{ needs.set_target_env.outputs.env_app }}
     runs-on: ubuntu-latest
     steps:
