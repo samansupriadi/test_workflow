@@ -42,7 +42,7 @@ jobs:
       - id: set_env
         run: |
           env_value=0
-          targetDeploy=${{  inputs.DeployTo != null && inputs.DeployTo || inputs.DeployTo == 'ALL' && vars.DEPLOY_TO || vars.DEPLOY_TO }}
+          targetDeploy=${{  inputs.DeployTo == null && inputs.DeployTo || inputs.DeployTo == 'ALL' && vars.DEPLOY_TO || vars.DEPLOY_TO }}
           type=${{ github.event_name == 'pull_request' && 'pull_request' ||  'workflow_disaptch' }}
           getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || github.event_name == 'workflow_dispatch' &&  github.ref_name}}   
           
@@ -65,10 +65,19 @@ jobs:
           echo "targetDeploy=$targetDeploy" >> "$GITHUB_OUTPUT"
 
   triger-deploy:
-    if: needs.set_target_env.outputs.env_app != '0' && ${{ success() }}
+    if:  needs.set_target_env.outputs.env_app != '0' && needs.set_target_env.outputs.env_app != 'production'
     name: List deploy to ${{ needs.set_target_env.outputs.env_app }}
     needs: set_target_env
     runs-on: ubuntu-latest
     steps:
       - run: |
          echo "${{ needs.set_target_env.outputs.target_deploy }} ${{ needs.set_target_env.outputs.env_app }}"
+
+  deploy-production:
+    needs: [set_target_env, check_auth]
+    if: needs.set_target_env.outputs.env_app != '0' && needs.set_target_env.outputs.env_app == 'production'
+    name: List deploy to ${{ needs.set_target_env.outputs.env_app }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "${{ needs.set_target_env.outputs.target_deploy }} ${{ needs.set_target_env.outputs.env_app }}"
