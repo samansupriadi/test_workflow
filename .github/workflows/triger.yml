@@ -42,7 +42,7 @@ jobs:
       - id: set_env
         run: |
           env_value=0
-          targetDeploy=${{  inputs.DeployTo == null && inputs.DeployTo || inputs.DeployTo == 'ALL' && vars.DEPLOY_TO || vars.DEPLOY_TO }}
+          targetDeploy=${{  (inputs.DeployTo != 'ALL' &&  inputs.DeployTo != null ) && inputs.DeployTo || inputs.DeployTo == 'ALL' && vars.DEPLOY_TO || vars.DEPLOY_TO }}
           type=${{ github.event_name == 'pull_request' && 'pull_request' ||  'workflow_disaptch' }}
           getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || github.event_name == 'workflow_dispatch' &&  github.ref_name}}   
           
