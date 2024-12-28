@@ -34,9 +34,7 @@ jobs:
 
   set_target_env:
     name: Define Environment
-    runs-on:
-      group: Development
-      labels: [self-hosted,Linux,X64,Development]
+    runs-on: ubuntu-latest
     outputs:
       env_app: ${{ steps.set_env.outputs.env_value }}
       target_deploy: ${{ steps.set_env.outputs.targetDeploy }}
