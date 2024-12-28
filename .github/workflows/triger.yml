@@ -18,23 +18,25 @@ on:
         - RELYON
 
 jobs:
-  check_auth: 
-    needs: set_target_env
-    if: github.event_name == 'workflow_dispatch'
-    name: Check user privileges who triger the workflows
-    runs-on: ubuntu-latest
-    steps:
-    - name: check user privilege
-      run: |
-        auth=${{ contains(secrets.AUTH, github.triggering_actor) }}
-        if [ "$auth" != "true" ]; then
-            echo "::error::Users has no privileged to run the workflows"
-            exit 1
-        fi
+  # check_auth: 
+  #   needs: set_target_env
+  #   if: github.event_name == 'workflow_dispatch'
+  #   name: Check user privileges who triger the workflows
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: check user privilege
+  #     run: |
+  #       auth=${{ contains(secrets.AUTH, github.triggering_actor) }}
+  #       if [ "$auth" != "true" ]; then
+  #           echo "::error::Users has no privileged to run the workflows"
+  #           exit 1
+  #       fi
 
   set_target_env:
     name: Define Environment
-    runs-on: ubuntu-latest
+    runs-on:
+      group: Development
+      labels: [self-hosted,Linux,X64,Development]
     outputs:
       env_app: ${{ steps.set_env.outputs.env_value }}
       target_deploy: ${{ steps.set_env.outputs.targetDeploy }}
@@ -42,7 +44,7 @@ jobs:
       - id: set_env
         run: |
           env_value=0
-          targetDeploy=${{  (inputs.DeployTo != 'ALL' &&  inputs.DeployTo != null ) && inputs.DeployTo || inputs.DeployTo == 'ALL' && vars.DEPLOY_TO || vars.DEPLOY_TO }}
+          targetDeploy=${{  inputs.DeployTo != null && inputs.DeployTo || null }}
           type=${{ github.event_name == 'pull_request' && 'pull_request' ||  'workflow_disaptch' }}
           getBranchName=${{ github.event_name == 'pull_request' && github.base_ref || github.event_name == 'workflow_dispatch' &&  github.ref_name}}   
           
@@ -54,18 +56,23 @@ jobs:
             fi
           fi
 
-          if [[ "$getBranchName" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "$getBranchName" == 'main' ]] || [[ "$type" == 'workflow_disaptch' ]] ; then
-            env_value='production'
+          if [[ "$getBranchName" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ || "$getBranchName" == 'main' ]] && [[ "$targetDeploy" != NULL ]]; then
+            if [[ "$targetDeploy" == 'ALL' ]]; then
+              env_value='production'
+            else
+              env_value="$targetDeploy"
+            fi
           elif [[ "$getBranchName" == 'staging' ]]; then
             env_value='staging'
           elif [[ "$getBranchName" == 'development' ]]; then
             env_value='development'
           fi
+          
           echo "env_value=$env_value" >> "$GITHUB_OUTPUT"
           echo "targetDeploy=$targetDeploy" >> "$GITHUB_OUTPUT"
 
   triger-deploy:
-    if:  needs.set_target_env.outputs.env_app != '0' && needs.set_target_env.outputs.env_app != 'production'
+    if:  needs.set_target_env.outputs.env_app != '0'
     name: List deploy to ${{ needs.set_target_env.outputs.env_app }}
     needs: set_target_env
     runs-on: ubuntu-latest
@@ -73,11 +80,11 @@ jobs:
       - run: |
          echo "${{ needs.set_target_env.outputs.target_deploy }} ${{ needs.set_target_env.outputs.env_app }}"
 
-  deploy-production:
-    needs: [set_target_env, check_auth]
-    if: needs.set_target_env.outputs.env_app != '0' && needs.set_target_env.outputs.env_app == 'production'
-    name: List deploy to ${{ needs.set_target_env.outputs.env_app }}
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "${{ needs.set_target_env.outputs.target_deploy }} ${{ needs.set_target_env.outputs.env_app }}"
+  # deploy-production:
+  #   needs: [set_target_env, check_auth]
+  #   if: needs.set_target_env.outputs.env_app != '0' && needs.set_target_env.outputs.env_app == 'production'
+  #   name: List deploy to ${{ needs.set_target_env.outputs.env_app }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - run: |
+  #         echo "${{ needs.set_target_env.outputs.target_deploy }} ${{ needs.set_target_env.outputs.env_app }}"
