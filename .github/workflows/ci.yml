@@ -4,8 +4,6 @@ on:
     branches:
       - staging
       - development
-    types:
-      - closed
 
 jobs:
   test-test:
@@ -13,4 +11,4 @@ jobs:
     steps:
       - name: test only
         run: |
-          sleep 60
+          sleep 50
