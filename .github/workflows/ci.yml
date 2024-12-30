@@ -4,8 +4,6 @@ on:
     branches:
       - staging
       - development
-    types:
-      - closed
 
 jobs:
   test-test:
