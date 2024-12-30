@@ -8,9 +8,9 @@ on:
       - closed
 
 jobs:
-  test:
+  test-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check user privilege
+      - name: test only
         run: |
           sleep 60
