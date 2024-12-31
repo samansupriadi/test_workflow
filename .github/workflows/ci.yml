@@ -9,6 +9,6 @@ jobs:
   test-test:
     runs-on: ubuntu-latest
     steps:
-      - name: test only
+      - name: test
         run: |
           exit 1
