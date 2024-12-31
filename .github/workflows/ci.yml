@@ -11,4 +11,4 @@ jobs:
     steps:
       - name: test only
         run: |
-          sleep 30
+          sleep 50
